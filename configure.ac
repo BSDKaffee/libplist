@@ -19,15 +19,9 @@ LIBPLIST_SO_VERSION=6:0:3
 
 AC_SUBST(LIBPLIST_SO_VERSION)
 
-# prefer clang if it is available and CC is not set
-if test -z "$CC" && test -z "$CXX" && test -x "`which clang`"; then
-    CC=clang
-    CXX=clang++
-fi
-
 # Checks for programs.
-AC_PROG_CC
-AC_PROG_CXX
+AC_PROG_CC([clang cc gcc])
+AC_PROG_CXX([clang++ c++ g++])
 
 # AC_PROG_CXX will return "g++" even if no c++ compiler is installed
 AC_LANG_PUSH([C++])
@@ -36,6 +30,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([],[])],
                   [AC_MSG_RESULT([yes])],
                   [AC_MSG_RESULT([no])
                    AC_MSG_ERROR([C++ compiler not available or unable to compile])])
+AX_COMPILER_VENDOR
 AC_LANG_POP
 
 AM_PROG_CC_C_O
@@ -248,7 +243,7 @@ if test "x$build_sanitizers" = "xyes"; then
 fi
 
 if test "x$build_fuzzers" = "xyes"; then
-    if test "$CXX" != "clang++"; then
+    if test "x$ax_cv_cxx_compiler_vendor" != "xclang"; then
         AC_MSG_WARN([building fuzzers requires clang/clang++ (continuing anyway)])
     fi
 
